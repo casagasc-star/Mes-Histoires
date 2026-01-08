@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelles écrites en bord de Dordogne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <style>
+        :root {
+            --font-body: 'Lora', serif;
+            --font-heading: 'Montserrat', sans-serif;
+            --color-primary: #8B4513;
+            --color-secondary: #D2691E;
+            --color-accent: #FF8C00;
+            --color-bg-light: rgba(255, 251, 240, 0.9);
+            --color-text: #333;
+            --color-text-light: #555;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            background-color: #f4f4f4;
+            color: var(--color-text);
+            line-height: 1.6;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 245, 230, 0.5);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--color-bg-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(5px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--color-secondary);
+            padding-bottom: 1rem;
+        }
+
+        header h1 {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        header p {
+            font-style: italic;
+            color: var(--color-text-light);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--color-accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--color-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--color-primary);
+            border: 2px solid var(--color-primary);
+        }
+        .btn-secondary:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        .btn-back {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #6d360f;
+        }
+        
+        #edit-mode {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid #ddd;
+        }
+        #edit-mode.hidden { display: none; }
+
+        #edit-mode h2 {
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            margin-top: 0;
+        }
+
+        #story-form {
+            display: grid;
+            gap: 1rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+        .form-group input,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-accent);
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-group input[type="file"] {
+            padding: 0.5rem;
+            background: #f9f9f9;
+        }
+
+        /* Section paramètres fond */
+        .settings-section {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid #ddd;
+        }
+        .settings-section.hidden { display: none; }
+        .settings-section h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        .settings-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .stories-container {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scroll-snap-type: x mandatory;
+        }
+        .stories-container::-webkit-scrollbar {
+            height: 12px;
+        }
+        .stories-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .stories-container::-webkit-scrollbar-thumb {
+            background: var(--color-secondary);
+            border-radius: 10px;
+        }
+        .stories-container::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        .story-card {
+            flex: 0 0 auto;
+            width: 320px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            scroll-snap-align: start;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .story-card h3 {
+            font-family: var(--font-heading);
+            color: var(--color-primary);
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+        .story-card .author {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        .story-card .accroche {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .story-card .extrait {
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+        .story-card .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .story-card .read-epub-btn {
+            background: var(--color-secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .story-card .read-epub-btn:hover {
+            background: var(--color-primary);
+        }
+        .story-card .story-images {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        .story-card .story-images img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .story-card .story-images img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .story-card .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .story-card .delete-btn:hover {
+            background: #c0392b;
+        }
+        .story-card .edit-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .story-card .edit-btn:hover {
+            background: #388E3C;
+        }
+
+        body.read-only .delete-btn { display: none; }
+        body.read-only .edit-btn { display: none; }
+        body.read-only .story-card .card-footer {
+            justify-content: flex-start;
+            gap: 0.75rem;
+        }
+
+        /* Style du filigrane (global) */
+        #watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 500;
+        }
+
+        /* Filigrane par histoire dans les visualiseurs */
+        .viewer-watermark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+        }
+
+        .empty-message {
+            text-align: center;
+            width: 100%;
+            color: #888;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* Switch pour modes mobile/PC/tablette */
+        #device-switch {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        #device-switch select {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--color-primary);
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Styles pour modes simulés */
+        body.mobile-mode .container {
+            max-width: 480px;
+        }
+
+        body.tablet-mode .container {
+            max-width: 768px;
+        }
+
+        body.pc-mode .container {
+            max-width: 1200px;
+        }
+
+        /* Responsive par défaut (sans override) */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .stories-container {
+                flex-direction: column;
+                overflow-x: hidden;
+                align-items: center;
+            }
+            .story-card {
+                width: 100%;
+                max-width: 320px;
+                max-height: 70vh;
+            }
+            .text-viewer-header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .text-viewer-header h2 {
+                font-size: 1rem;
+            }
+            #text-container {
+                max-height: none; /* Ajustement pour mobile */
+                padding: 1rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            #story-form {
+                grid-template-columns: 1fr;
+            }
+            .settings-row {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .story-card {
+                padding: 1rem;
+            }
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body class="read-only">
+
+    <div id="watermark"></div>
+
+    <div class="container">
+        <header>
+            <h1>Mes Nouvelles</h1>
+            <p>Des histoires inspirées par les berges de la Dordogne</p>
+        </header>
+
+        <!-- Switch pour modes mobile/PC/tablette -->
+        <div id="device-switch">
+            <label for="device-select">Mode d'affichage : </label>
+            <select id="device-select">
+                <option value="pc-mode">PC</option>
+                <option value="tablet-mode">Tablette</option>
+                <option value="mobile-mode">Mobile</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <button id="toggle-mode-btn" class="btn btn-secondary">
+                <i class="fas fa-edit"></i> Passer en Mode Édition
+            </button>
+            <button id="toggle-settings-btn" class="btn btn-secondary" style="display: none;">
+                <i class="fas fa-image"></i> Image de fond
+            </button>
+            <label for="export-type" style="display: none;">Type d'export : </label>
+            <select id="export-type" style="display: none;">
+                <option value="interne">Source interne</option>
+                <option value="hebergeur">Hébergeur</option>
+            </select>
+            <button id="export-btn" class="btn btn-primary" style="display: none;">
+                <i class="fas fa-download"></i> Exporter la page
+            </button>
+            <button id="export-files-btn" class="btn btn-primary" style="display: none;">
+                <i class="fas fa-archive"></i> Exporter Fichiers
+            </button>
+            <button id="increase-font-btn" class="btn btn-secondary" style="display: inline-flex;">
+                <i class="fas fa-plus"></i> Police +
+            </button>
+            <button id="decrease-font-btn" class="btn btn-secondary" style="display: inline-flex;">
+                <i class="fas fa-minus"></i> Police -
+            </button>
+        </div>
+
+        <!-- Section Paramètres Image de Fond et Filigrane -->
+        <section id="settings-section" class="settings-section hidden">
+            <h3><i class="fas fa-image"></i> Personnaliser l'image de fond</h3>
+            <div class="settings-row">
+                <input type="file" id="bg-image-input" accept="image/*">
+                <input type="text" id="bg-url-input" placeholder="Ou URL de l'image (hébergée externe)">
+                <button id="apply-bg-btn" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Appliquer
+                </button>
+                <button id="reset-bg-btn" class="btn btn-secondary">
+                    <i class="fas fa-undo"></i> Réinitialiser
+                </button>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-info-circle"></i> Chargez votre image personnelle (ex: moi.JPG) pour l'utiliser comme fond, ou fournissez une URL hébergée.
+            </p>
+
+            <h3><i class="fas fa-water"></i> Image de filigrane transparente (sur tout l'écran)</h3>
+            <div class="settings-row">
+                <input type="file" id="watermark-image-input" accept="image/*">
+                <input type="text" id="watermark-url-input" placeholder="Ou URL de l'image (hébergée externe)">
+                <button id="apply-watermark-btn" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Appliquer
+                </button>
+                <button id="reset-watermark-btn" class="btn btn-secondary">
+                    <i class="fas fa-undo"></i> Réinitialiser
+                </button>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-info-circle"></i> Chargez une image qui apparaîtra de manière transparente sur tout l'écran (ex: logo ou photo personnelle), ou fournissez une URL hébergée.
+            </p>
+        </section>
+
+        <section id="edit-mode" class="hidden">
+            <h2 id="edit-title"><i class="fas fa-plus-circle"></i> Ajouter une nouvelle histoire</h2>
+            <form id="story-form">
+                <div class="form-group">
+                    <label for="auteur">Auteur</label>
+                    <input type="text" id="auteur" name="auteur" required>
+                </div>
+                <div class="form-group">
+                    <label for="titre">Titre</label>
+                    <input type="text" id="titre" name="titre" required>
+                </div>
+                <div class="form-group">
+                    <label for="accroche">Accroche / Résumé</label>
+                    <textarea id="accroche" name="accroche" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="extrait">Extrait</label>
+                    <textarea id="extrait" name="extrait" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="epub_url"><i class="fas fa-link"></i> URL de l'EPUB pour lecture en ligne (hébergé sur Internet Archive, optionnel)</label>
+                    <input type="text" id="epub_url" name="epub_url">
+                </div>
+                <div class="form-group">
+                    <label for="epub_download_url"><i class="fas fa-download"></i> URL de l'EPUB pour téléchargement (optionnel, même lien ou lien direct)</label>
+                    <input type="text" id="epub_download_url" name="epub_download_url">
+                    <small style="color: #666; font-size: 0.85rem;">Si vide, utilisera l'URL de lecture. Pour forcer le téléchargement, ajoutez /download/ dans l'URL.</small>
+                </div>
+                <div class="form-group">
+                    <label for="images_urls"><i class="fas fa-images"></i> URLs d'images (Internet Archive, une par ligne, optionnel)</label>
+                    <textarea id="images_urls" name="images_urls" rows="3" placeholder="https://archive.org/download/.../image1.jpg
+https://archive.org/download/.../image2.jpg"></textarea>
+                    <small style="color: #666; font-size: 0.85rem;">Ajoutez une URL d'image par ligne pour créer une galerie</small>
+                </div>
+                <div class="form-group">
+                    <label for="story_watermark"><i class="fas fa-water"></i> Image de filigrane transparente pour cette histoire (optionnel)</label>
+                    <input type="file" id="story_watermark" name="story_watermark" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="story_watermark_url"><i class="fas fa-link"></i> Ou URL de l'image de filigrane (hébergée externe, optionnel)</label>
+                    <input type="text" id="story_watermark_url" name="story_watermark_url">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" id="submit-story-btn" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Ajouter l'Histoire
+                    </button>
+                    <button type="button" id="cancel-story-btn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <main>
+            <h2>Les Histoires</h2>
+            <div id="stories-display" class="stories-container">
+                <!-- Les cartes d'histoires seront insérées ici par JavaScript -->
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 - Blog de Nouvelles. Je vous aime tous.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const STORAGE_KEY = 'dordogneStories';
+            const BG_STORAGE_KEY = 'dordogneBgImage';
+            const WATERMARK_STORAGE_KEY = 'dordogneWatermark';
+            const form = document.getElementById('story-form');
+            const storiesDisplay = document.getElementById('stories-display');
+            const toggleModeBtn = document.getElementById('toggle-mode-btn');
+            const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const exportFilesBtn = document.getElementById('export-files-btn');
+            const editModeSection = document.getElementById('edit-mode');
+            const settingsSection = document.getElementById('settings-section');
+            const editTitle = document.getElementById('edit-title');
+            const submitStoryBtn = document.getElementById('submit-story-btn');
+            
+            // Background Image
+            const bgImageInput = document.getElementById('bg-image-input');
+            const bgUrlInput = document.getElementById('bg-url-input');
+            const applyBgBtn = document.getElementById('apply-bg-btn');
+            const resetBgBtn = document.getElementById('reset-bg-btn');
+            
+            // Watermark Image
+            const watermarkImageInput = document.getElementById('watermark-image-input');
+            const watermarkUrlInput = document.getElementById('watermark-url-input');
+            const applyWatermarkBtn = document.getElementById('apply-watermark-btn');
+            const resetWatermarkBtn = document.getElementById('reset-watermark-btn');
+            const watermarkDiv = document.getElementById('watermark');
+
+            // Nouveaux boutons pour la police
+            const increaseFontBtn = document.getElementById('increase-font-btn');
+            const decreaseFontBtn = document.getElementById('decrease-font-btn');
+            let currentFontSize = 1;
+
+            // Switch pour modes device
+            const deviceSelect = document.getElementById('device-select');
+
+            // Export type
+            const exportType = document.getElementById('export-type');
+            const exportTypeLabel = document.querySelector('label[for="export-type"]');
+
+            let editingStoryId = null;
+
+            // --- Gestion des Données ---
+            const getStories = () => {
+                try {
+                    if (window.embeddedStories) {
+                        return JSON.parse(window.embeddedStories);
+                    }
+                    const stories = localStorage.getItem(STORAGE_KEY);
+                    return stories ? JSON.parse(stories) : [];
+                } catch (error) {
+                    console.error('Error loading stories:', error);
+                    return [];
+                }
+            };
+
+            const saveStories = (stories) => {
+                if (window.isExported) return;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(stories));
+                } catch (error) {
+                    console.error('Error saving stories:', error);
+                    alert('Erreur lors de l\'enregistrement des histoires. Vérifiez la taille des données.');
+                }
+            };
+
+            // --- Gestion de l'image de fond ---
+            const loadBackgroundImage = () => {
+                try {
+                    let savedBg;
+                    if (window.embeddedBg) {
+                        savedBg = JSON.parse(window.embeddedBg);
+                    } else {
+                        savedBg = localStorage.getItem(BG_STORAGE_KEY);
+                    }
+                    if (savedBg) {
+                        document.body.style.backgroundImage = `url('${savedBg}')`;
+                    } else {
+                        document.body.style.backgroundImage = `url('https://images.unsplash.com/photo-1571016673222-06e8c9a9e1c5?q=80&w=2070&auto=format&fit=crop')`;
+                    }
+                } catch (error) {
+                    console.error('Error loading background:', error);
+                }
+            };
+
+            // --- Gestion de l'image de filigrane ---
+            const loadWatermarkImage = () => {
+                try {
+                    let savedWatermark;
+                    if (window.embeddedWatermark) {
+                        savedWatermark = JSON.parse(window.embeddedWatermark);
+                    } else {
+                        savedWatermark = localStorage.getItem(WATERMARK_STORAGE_KEY);
+                    }
+                    if (savedWatermark) {
+                        watermarkDiv.style.backgroundImage = `url('${savedWatermark}')`;
+                    }
+                } catch (error) {
+                    console.error('Error loading watermark:', error);
+                }
+            };
+
+            const fileToBase64 = (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            };
+
+            if (applyBgBtn) {
+                applyBgBtn.addEventListener('click', async () => {
+                    const url = bgUrlInput ? bgUrlInput.value : '';
+                    const file = bgImageInput.files[0];
+                    if (url) {
+                        localStorage.setItem(BG_STORAGE_KEY, url);
+                        document.body.style.backgroundImage = `url('${url}')`;
+                        alert('Image de fond appliquée avec succès !');
+                    } else if (file) {
+                        try {
+                            const base64 = await fileToBase64(file);
+                            localStorage.setItem(BG_STORAGE_KEY, base64);
+                            document.body.style.backgroundImage = `url('${base64}')`;
+                            alert('Image de fond appliquée avec succès !');
+                        } catch (error) {
+                            alert('Erreur lors du chargement de l\'image.');
+                        }
+                    } else {
+                        alert('Veuillez sélectionner une image ou fournir une URL.');
+                    }
+                });
+            }
+
+            if (resetBgBtn) {
+                resetBgBtn.addEventListener('click', () => {
+                    localStorage.removeItem(BG_STORAGE_KEY);
+                    document.body.style.backgroundImage = `url('https://images.unsplash.com/photo-1571016673222-06e8c9a9e1c5?q=80&w=2070&auto=format&fit=crop')`;
+                    if (bgImageInput) bgImageInput.value = '';
+                    if (bgUrlInput) bgUrlInput.value = '';
+                    alert('Image de fond réinitialisée.');
+                });
+            }
+
+            if (applyWatermarkBtn) {
+                applyWatermarkBtn.addEventListener('click', async () => {
+                    const url = watermarkUrlInput ? watermarkUrlInput.value : '';
+                    const file = watermarkImageInput.files[0];
+                    if (url) {
+                        localStorage.setItem(WATERMARK_STORAGE_KEY, url);
+                        watermarkDiv.style.backgroundImage = `url('${url}')`;
+                        alert('Image de filigrane appliquée avec succès !');
+                    } else if (file) {
+                        try {
+                            const base64 = await fileToBase64(file);
+                            localStorage.setItem(WATERMARK_STORAGE_KEY, base64);
+                            watermarkDiv.style.backgroundImage = `url('${base64}')`;
+                            alert('Image de filigrane appliquée avec succès !');
+                        } catch (error) {
+                            alert('Erreur lors du chargement de l\'image.');
+                        }
+                    } else {
+                        alert('Veuillez sélectionner une image ou fournir une URL.');
+                    }
+                });
+            }
+
+            if (resetWatermarkBtn) {
+                resetWatermarkBtn.addEventListener('click', () => {
+                    localStorage.removeItem(WATERMARK_STORAGE_KEY);
+                    watermarkDiv.style.backgroundImage = 'none';
+                    if (watermarkImageInput) watermarkImageInput.value = '';
+                    if (watermarkUrlInput) watermarkUrlInput.value = '';
+                    alert('Image de filigrane réinitialisée.');
+                });
+            }
+
+            if (toggleSettingsBtn) {
+                toggleSettingsBtn.addEventListener('click', () => {
+                    settingsSection.classList.toggle('hidden');
+                });
+            }
+
+            // --- Rendu des Histoires ---
+            const renderStories = () => {
+                const stories = getStories();
+                storiesDisplay.innerHTML = '';
+
+                if (stories.length === 0) {
+                    storiesDisplay.innerHTML = '<p class="empty-message">Aucune histoire pour le moment. Ajoutez-en une !</p>';
+                    return;
+                }
+
+                stories.forEach(story => {
+                    const card = document.createElement('article');
+                    card.className = 'story-card';
+                    card.dataset.id = story.id;
+
+                    let epubButtonsHtml = '';
+                    if (story.epub_url) {
+                        const downloadUrl = story.epub_download_url || story.epub_url;
+                        epubButtonsHtml = `
+                            <a href="${story.epub_url}" target="_blank" class="read-epub-btn">
+                                <i class="fas fa-book-open"></i> Lire EPUB
+                            </a>
+                            <a href="${downloadUrl}" download class="read-epub-btn" style="background: var(--color-accent);">
+                                <i class="fas fa-download"></i> Télécharger EPUB
+                            </a>
+                        `;
+                    } else {
+                        epubButtonsHtml = `<span style="color: #999; font-size: 0.85rem;"><i class="fas fa-book"></i> Pas d'EPUB</span>`;
+                    }
+
+                    // Gérer l'affichage des images
+                    let imagesHtml = '';
+                    if (story.images && story.images.length > 0) {
+                        imagesHtml = '<div class="story-images">';
+                        story.images.forEach((imgUrl, idx) => {
+                            imagesHtml += `
+                                <img src="${imgUrl}" 
+                                     alt="Image ${idx + 1}" 
+                                     title="Cliquez pour agrandir"
+                                     onclick="window.open('${imgUrl}', '_blank')">
+                            `;
+                        });
+                        imagesHtml += '</div>';
+                    }
+
+                    card.innerHTML = `
+                        <h3>${story.titre}</h3>
+                        <p class="author">Par ${story.auteur}</p>
+                        <p class="accroche">${story.accroche}</p>
+                        <p class="extrait">${story.extrait}</p>
+                        ${imagesHtml}
+                        <div class="card-footer">
+                            ${epubButtonsHtml}
+                            <button class="edit-btn" data-id="${story.id}"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" data-id="${story.id}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    storiesDisplay.appendChild(card);
+                });
+            };
+
+            // --- Gestion du Formulaire d'Ajout/Edition ---
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const epubUrl = document.getElementById('epub_url').value;
+                    const epubDownloadUrl = document.getElementById('epub_download_url').value;
+                    const imagesUrlsText = document.getElementById('images_urls').value;
+                    
+                    // Traiter les URLs d'images (une par ligne)
+                    const imagesUrls = imagesUrlsText ? 
+                        imagesUrlsText.split('\n')
+                            .map(url => url.trim())
+                            .filter(url => url.length > 0) 
+                        : [];
+
+                    const storyWatermarkUrl = document.getElementById('story_watermark_url').value;
+                    let watermarkData = null;
+                    if (storyWatermarkUrl) {
+                        watermarkData = storyWatermarkUrl;
+                    } else {
+                        const watermarkFile = document.getElementById('story_watermark').files[0];
+                        if (watermarkFile) {
+                            try {
+                                watermarkData = await fileToBase64(watermarkFile);
+                            } catch (error) {
+                                alert('Erreur lors du chargement de l\'image de filigrane.');
+                                return;
+                            }
+                        }
+                    }
+
+                    const story = {
+                        id: editingStoryId || Date.now(),
+                        auteur: form.auteur.value,
+                        titre: form.titre.value,
+                        accroche: form.accroche.value,
+                        extrait: form.extrait.value,
+                        epub_url: epubUrl,
+                        epub_download_url: epubDownloadUrl,
+                        images: imagesUrls,
+                        watermark_data: watermarkData
+                    };
+
+                    let stories = getStories();
+                    if (editingStoryId) {
+                        const index = stories.findIndex(s => s.id === editingStoryId);
+                        if (index !== -1) {
+                            stories[index] = story;
+                        }
+                    } else {
+                        stories.push(story);
+                    }
+
+                    try {
+                        saveStories(stories);
+                        renderStories();
+                        form.reset();
+                        // Réinitialisation explicite des nouveaux champs
+                        document.getElementById('epub_download_url').value = '';
+                        document.getElementById('images_urls').value = '';
+                        editingStoryId = null;
+                        editTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Ajouter une nouvelle histoire';
+                        submitStoryBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Ajouter l\'Histoire';
+                        alert('Histoire mise à jour avec succès !');
+                    } catch (error) {
+                        alert('Erreur: Le fichier ou l\'image est peut-être trop volumineux pour le stockage local. Essayez des fichiers plus petits ou des URLs hébergées.');
+                    }
+                });
+            }
+
+            const cancelStoryBtn = document.getElementById('cancel-story-btn');
+            if (cancelStoryBtn) {
+                cancelStoryBtn.addEventListener('click', () => {
+                    if (form) form.reset();
+                    // Réinitialisation explicite des nouveaux champs
+                    document.getElementById('epub_download_url').value = '';
+                    document.getElementById('images_urls').value = '';
+                    editingStoryId = null;
+                    editTitle.innerHTML = '<i class="fas fa-plus-circle"></i> Ajouter une nouvelle histoire';
+                    submitStoryBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Ajouter l\'Histoire';
+                });
+            }
+
+            // --- Gestion des clics (Suppression, Edition, Lecture EPUB, Lecture Extrait) ---
+            storiesDisplay.addEventListener('click', (e) => {
+                // Bouton Supprimer
+                if (e.target.closest('.delete-btn')) {
+                    const storyId = parseInt(e.target.closest('.delete-btn').dataset.id, 10);
+                    
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cette histoire ?')) {
+                        let stories = getStories();
+                        stories = stories.filter(s => s.id !== storyId);
+                        saveStories(stories);
+                        renderStories();
+                    }
+                }
+                
+                // Bouton Editer
+                if (e.target.closest('.edit-btn')) {
+                    const storyId = parseInt(e.target.closest('.edit-btn').dataset.id, 10);
+                    const stories = getStories();
+                    const story = stories.find(s => s.id === storyId);
+                    
+                    if (story) {
+                        editingStoryId = story.id;
+                        document.getElementById('auteur').value = story.auteur;
+                        document.getElementById('titre').value = story.titre;
+                        document.getElementById('accroche').value = story.accroche;
+                        document.getElementById('extrait').value = story.extrait;
+                        document.getElementById('epub_url').value = story.epub_url || '';
+                        document.getElementById('epub_download_url').value = story.epub_download_url || '';
+                        document.getElementById('images_urls').value = (story.images && story.images.length > 0) ? story.images.join('\n') : '';
+                        document.getElementById('story_watermark_url').value = (story.watermark_data && !story.watermark_data.startsWith('data:')) ? story.watermark_data : '';
+                        editTitle.innerHTML = '<i class="fas fa-edit"></i> Modifier l\'histoire';
+                        submitStoryBtn.innerHTML = '<i class="fas fa-save"></i> Mettre à jour l\'Histoire';
+                    }
+                }
+            });
+
+            // --- Gestion du Mode Lecture/Édition ---
+            if (toggleModeBtn) {
+                toggleModeBtn.addEventListener('click', () => {
+                    const isReadOnly = document.body.classList.contains('read-only');
+                    
+                    if (isReadOnly) {
+                        // Demander le mot de passe pour passer en mode édition
+                        const password = prompt('Entrez le code pour passer en mode édition :');
+                        if (password !== '2433') {
+                            alert('Code incorrect !');
+                            return;
+                        }
+                    }
+                    
+                    document.body.classList.toggle('read-only');
+                    const nowReadOnly = document.body.classList.contains('read-only');
+                    
+                    if (nowReadOnly) {
+                        editModeSection.classList.add('hidden');
+                        settingsSection.classList.add('hidden');
+                        exportBtn.style.display = 'none';
+                        exportFilesBtn.style.display = 'none';
+                        exportType.style.display = 'none';
+                        if (exportTypeLabel) exportTypeLabel.style.display = 'none';
+                        toggleSettingsBtn.style.display = 'none';
+                        increaseFontBtn.style.display = 'inline-flex';
+                        decreaseFontBtn.style.display = 'inline-flex';
+                        toggleModeBtn.innerHTML = '<i class="fas fa-edit"></i> Passer en Mode Édition';
+                    } else {
+                        editModeSection.classList.remove('hidden');
+                        exportBtn.style.display = 'inline-flex';
+                        exportFilesBtn.style.display = 'inline-flex';
+                        exportType.style.display = 'inline-block';
+                        if (exportTypeLabel) exportTypeLabel.style.display = 'inline-block';
+                        toggleSettingsBtn.style.display = 'inline-flex';
+                        increaseFontBtn.style.display = 'none';
+                        decreaseFontBtn.style.display = 'none';
+                        toggleModeBtn.innerHTML = '<i class="fas fa-eye"></i> Passer en Mode Lecture';
+                        currentFontSize = 1;
+                        updateFontSize();
+                    }
+                });
+            }
+
+            // Fonction pour mettre à jour la taille de police
+            const updateFontSize = () => {
+                const stories = document.querySelectorAll('.story-card p, .story-card h3');
+                stories.forEach(el => {
+                    el.style.fontSize = `${currentFontSize}rem`;
+                });
+            };
+
+            if (increaseFontBtn) {
+                increaseFontBtn.addEventListener('click', () => {
+                    if (currentFontSize < 2) {
+                        currentFontSize += 0.2;
+                        updateFontSize();
+                    } else {
+                        alert('Taille de police maximale atteinte.');
+                    }
+                });
+            }
+
+            if (decreaseFontBtn) {
+                decreaseFontBtn.addEventListener('click', () => {
+                    if (currentFontSize > 0.8) {
+                        currentFontSize -= 0.2;
+                        updateFontSize();
+                    } else {
+                        alert('Taille de police minimale atteinte.');
+                    }
+                });
+            }
+
+            if (deviceSelect) {
+                deviceSelect.addEventListener('change', (e) => {
+                    document.body.className = '';
+                    document.body.classList.add(e.target.value);
+                });
+            }
+
+            // --- Gestion de l'Export HTML ---
+            if (exportBtn) {
+                exportBtn.addEventListener('click', async () => {
+                    const type = exportType.value;
+                    const zip = new JSZip();
+                    const documentClone = document.cloneNode(true);
+                    const editModeSectionClone = documentClone.getElementById('edit-mode');
+                    const settingsSectionClone = documentClone.getElementById('settings-section');
+                    const controlsClone = documentClone.querySelector('.controls');
+                    const deviceSwitchClone = documentClone.getElementById('device-switch');
+                    if (editModeSectionClone) editModeSectionClone.remove();
+                    if (settingsSectionClone) settingsSectionClone.remove();
+                    if (controlsClone) controlsClone.remove();
+                    if (deviceSwitchClone) deviceSwitchClone.remove();
+
+                    let embeddedStories = getStories().map(story => ({...story}));
+                    let embeddedBg = localStorage.getItem(BG_STORAGE_KEY);
+                    let embeddedWatermark = localStorage.getItem(WATERMARK_STORAGE_KEY);
+
+                    if (type === 'interne') {
+                        const assets = zip.folder('assets');
+                        if (embeddedBg && embeddedBg.startsWith('data:')) {
+                            const ext = embeddedBg.split(';')[0].split('/')[1];
+                            assets.file(`bg.${ext}`, embeddedBg.split(',')[1], {base64: true});
+                            embeddedBg = `assets/bg.${ext}`;
+                        }
+                        if (embeddedWatermark && embeddedWatermark.startsWith('data:')) {
+                            const ext = embeddedWatermark.split(';')[0].split('/')[1];
+                            assets.file(`watermark.${ext}`, embeddedWatermark.split(',')[1], {base64: true});
+                            embeddedWatermark = `assets/watermark.${ext}`;
+                        }
+                        embeddedStories.forEach(story => {
+                            if (story.watermark_data && story.watermark_data.startsWith('data:')) {
+                                const ext = story.watermark_data.split(';')[0].split('/')[1];
+                                assets.file(`story_${story.id}_wm.${ext}`, story.watermark_data.split(',')[1], {base64: true});
+                                story.watermark_data = `assets/story_${story.id}_wm.${ext}`;
+                            }
+                        });
+                    }
+
+                    const embedScript = documentClone.createElement('script');
+                    embedScript.textContent = `
+                        window.isExported = true;
+                        window.embeddedStories = '${JSON.stringify(embeddedStories)}';
+                        window.embeddedBg = '${JSON.stringify(embeddedBg)}';
+                        window.embeddedWatermark = '${JSON.stringify(embeddedWatermark)}';
+                    `;
+                    documentClone.head.appendChild(embedScript);
+
+                    const bodyClone = documentClone.body;
+                    bodyClone.classList.add('read-only');
+
+                    const htmlContent = `<!DOCTYPE html>\n` + documentClone.documentElement.outerHTML;
+
+                    if (type === 'interne') {
+                        zip.file('index.html', htmlContent);
+                        const content = await zip.generateAsync({type: "blob"});
+                        const url = URL.createObjectURL(content);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'nouvelles-dordogne-export.zip';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    } else {
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'nouvelles-dordogne-export.html';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                });
+            }
+
+            // --- Export fichiers ---
+            if (exportFilesBtn) {
+                exportFilesBtn.addEventListener('click', () => {
+                    const zip = new JSZip();
+                    const stories = getStories();
+
+                    // Ajouter background si base64
+                    const bg = localStorage.getItem(BG_STORAGE_KEY);
+                    if (bg && bg.startsWith('data:')) {
+                        const ext = bg.split(';')[0].split('/')[1] || 'jpg';
+                        zip.file(`background.${ext}`, bg.split(',')[1], {base64: true});
+                    }
+
+                    // Ajouter watermark global si base64
+                    const wm = localStorage.getItem(WATERMARK_STORAGE_KEY);
+                    if (wm && wm.startsWith('data:')) {
+                        const ext = wm.split(';')[0].split('/')[1] || 'jpg';
+                        zip.file(`watermark.${ext}`, wm.split(',')[1], {base64: true});
+                    }
+
+                    // Ajouter watermarks des histoires si base64
+                    stories.forEach((story, index) => {
+                        if (story.watermark_data && story.watermark_data.startsWith('data:')) {
+                            const ext = story.watermark_data.split(';')[0].split('/')[1] || 'jpg';
+                            zip.file(`story_${index + 1}_watermark.${ext}`, story.watermark_data.split(',')[1], {base64: true});
+                        }
+                    });
+
+                    zip.generateAsync({type: "blob"}).then(function(content) {
+                        const url = URL.createObjectURL(content);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'fichiers-export.zip';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    });
+                });
+            }
+
+            // Initialisation
+            loadBackgroundImage();
+            loadWatermarkImage();
+            renderStories();
+        });
+    </script>
+</body>
+</html>
